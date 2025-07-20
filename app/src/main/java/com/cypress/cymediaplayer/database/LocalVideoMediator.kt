@@ -22,7 +22,7 @@ class LocalVideoMediator(
     private val cyDb: CyDatabase
 ): RemoteMediator<Int, VideoEntity>()  {
 
-    fun getVideoList(pageOffset: Int , pageCount : Int) : List<VideoItem> {
+    fun getVideoList(pageOffset: Long , pageCount : Int) : List<VideoItem> {
 
         val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(
@@ -55,15 +55,15 @@ class LocalVideoMediator(
                 val title = cursor.getString(titleColumn)
                 val uri = ContentUris.withAppendedId(collection, id)
 
-                val tempItem: VideoItem = try {
-                    retriever.setDataSource(context, uri)
-                    val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-                    VideoItem(id, title, uri.toString(), frameBitmap)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    VideoItem(id, title, uri.toString(), null)
-                }
-
+//                val tempItem: VideoItem = try {
+//                    retriever.setDataSource(context, uri)
+//                    val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+//                    VideoItem(id, title, uri.toString(), frameBitmap)
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    VideoItem(id, title, uri.toString(), null)
+//                }
+                val tempItem = VideoItem(id, title, uri.toString(), null)
                 tempList.add(tempItem)
                 index++
             }
@@ -99,7 +99,6 @@ class LocalVideoMediator(
                 pageOffset = loadKey,
                 pageCount = state.config.pageSize
             )
-            Log.e("TAG" , "Size: ${videoList.size} ${loadKey} ${state.config.pageSize}")
             cyDb.withTransaction {
                 if(loadType == LoadType.REFRESH) {
                     cyDb.videoListDao().clearAll()

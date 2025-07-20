@@ -1,17 +1,27 @@
 package com.cypress.cymediaplayer
 
 import android.Manifest
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,9 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -67,13 +82,47 @@ class MainActivity : ComponentActivity() {
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
+//                                val retriever = MediaMetadataRetriever()
                                 items(videos.itemCount) { index ->
                                     val item = videos[index]
                                     if (item != null) {
-                                        // Render your item here
-                                        Text(text = item.title) // Example field
+                                        Row(modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                        .clickable{
+//                                            onNavigation(videoItem)
+                                        } ,
+                                        verticalAlignment = Alignment.CenterVertically) {
+                                        val uri = item.uri.toUri()
+                                        context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                                            val retriever = MediaMetadataRetriever()
+                                            retriever.setDataSource(it.fileDescriptor)
+                                            val bitmap = retriever.getFrameAtTime(0)
+                                            retriever.release()
+                                            // use bitmap
+                                            if(bitmap != null){
+                                                Image(
+                                                    bitmap = bitmap.asImageBitmap(),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(52.dp)
+                                                        .clip(RoundedCornerShape(16.dp)), // Rounded corners
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            }
+                                        }
+//                                        retriever.setDataSource(this@MainActivity, item.uri.toUri())
+//                                        val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+//
+                                        Spacer(modifier = Modifier.size(4.dp))
+                                        Text(
+                                            text = item.title,
+                                            modifier = Modifier.weight(1f),
+                                            fontSize = 12.sp
+                                        )
+                                    }
                                     }
                                 }
+//                                retriever.release()
                             }
                         }
                     }
