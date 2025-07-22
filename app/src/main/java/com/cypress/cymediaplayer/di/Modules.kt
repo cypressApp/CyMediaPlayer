@@ -1,13 +1,18 @@
 package com.cypress.cymediaplayer.di
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import androidx.core.net.toUri
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
 import androidx.room.Room
 import com.cypress.cymediaplayer.database.CyDatabase
 import com.cypress.cymediaplayer.database.LocalVideoMediator
 import com.cypress.cymediaplayer.database.VideoEntity
+import com.cypress.cymediaplayer.database.VideoItemPagingSource
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.repositories.VideoListRepository
 import com.cypress.cymediaplayer.repositories.VideoListRepositoryImp
@@ -43,16 +48,32 @@ val platformModule = module{
     single<Pager<Int, VideoEntity>> {
         val cyDb: CyDatabase = get()
         Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(
+                pageSize = 20,
+//                prefetchDistance = 0,     // no prefetch
+//                initialLoadSize = 20
+            ),
             remoteMediator = LocalVideoMediator(
                 get(), cyDb = cyDb
             ),
             pagingSourceFactory = {
                 cyDb.videoListDao().pagingSource()
+//                val tempContext : Context = get()
+//                val videoEntityPagingSource:PagingSource<Int, VideoEntity> =
+//                VideoItemPagingSource(videoEntityPagingSource) { entity ->
+////                    val retriever = MediaMetadataRetriever()
+////                    retriever.setDataSource(tempContext, entity.uri.toUri())
+////                    val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+////                    retriever.release()
+//                    VideoItem(entity.id,
+//                        entity.title,
+//                        entity.uri,
+//                        null)
+//                }
             }
         )
     }
 
-    viewModel { VideoListViewModel(get()) }
+    viewModel { VideoListViewModel(get() , get()) }
 
 }

@@ -40,6 +40,9 @@ import androidx.core.net.toUri
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.VideoFrameDecoder
 import com.cypress.cymediaplayer.database.VideoEntity
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.ui.theme.CyMediaPlayerTheme
@@ -58,7 +61,15 @@ class MainActivity : ComponentActivity() {
             CheckVideoPermission()
             CyMediaPlayerTheme {
                 val videoListViewModel : VideoListViewModel = koinViewModel()
-                val videos : LazyPagingItems<VideoEntity> = videoListViewModel.videoPagingFlow.collectAsLazyPagingItems()
+                val videos : LazyPagingItems<VideoItem> = videoListViewModel.videoPagingFlow.collectAsLazyPagingItems()
+
+                val context = LocalContext.current
+                val imageLoader = ImageLoader.Builder(context)
+                    .components {
+                        add(VideoFrameDecoder.Factory())
+                    }
+                    .build()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val context = LocalContext.current
                     LaunchedEffect(key1 = videos.loadState) {
@@ -71,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    Box(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         if (videos.loadState.refresh is LoadState.Loading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.align(Alignment.Center)
@@ -82,7 +93,7 @@ class MainActivity : ComponentActivity() {
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-//                                val retriever = MediaMetadataRetriever()
+
                                 items(videos.itemCount) { index ->
                                     val item = videos[index]
                                     if (item != null) {
@@ -93,26 +104,15 @@ class MainActivity : ComponentActivity() {
 //                                            onNavigation(videoItem)
                                         } ,
                                         verticalAlignment = Alignment.CenterVertically) {
-                                        val uri = item.uri.toUri()
-                                        context.contentResolver.openFileDescriptor(uri, "r")?.use {
-                                            val retriever = MediaMetadataRetriever()
-                                            retriever.setDataSource(it.fileDescriptor)
-                                            val bitmap = retriever.getFrameAtTime(0)
-                                            retriever.release()
-                                            // use bitmap
-                                            if(bitmap != null){
-                                                Image(
-                                                    bitmap = bitmap.asImageBitmap(),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(52.dp)
-                                                        .clip(RoundedCornerShape(16.dp)), // Rounded corners
-                                                    contentScale = ContentScale.Crop
-                                                )
-                                            }
-                                        }
-//                                        retriever.setDataSource(this@MainActivity, item.uri.toUri())
-//                                        val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-//
+                                        AsyncImage(
+                                            model = item.uri.toUri(),
+                                            imageLoader  =imageLoader,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .clip(RoundedCornerShape(8.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
                                         Spacer(modifier = Modifier.size(4.dp))
                                         Text(
                                             text = item.title,
@@ -122,7 +122,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                     }
                                 }
-//                                retriever.release()
                             }
                         }
                     }

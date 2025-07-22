@@ -22,6 +22,8 @@ class LocalVideoMediator(
     private val cyDb: CyDatabase
 ): RemoteMediator<Int, VideoEntity>()  {
 
+    var offset = 0L
+
     fun getVideoList(pageOffset: Long , pageCount : Int) : List<VideoItem> {
 
         val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -31,7 +33,7 @@ class LocalVideoMediator(
         )
 
         val tempList: MutableList<VideoItem> = mutableListOf()
-        val retriever = MediaMetadataRetriever()
+//        val retriever = MediaMetadataRetriever()
 
         context.contentResolver.query(
             collection,
@@ -69,7 +71,7 @@ class LocalVideoMediator(
             }
         }
 
-        retriever.release()
+//        retriever.release()
         return tempList
     }
 
@@ -79,26 +81,30 @@ class LocalVideoMediator(
     ): MediatorResult {
 
         return try {
-
-            val loadKey = when(loadType) {
-                LoadType.REFRESH -> 1
+            Log.e("pageOffset" , "$offset")
+             when(loadType) {
+                LoadType.REFRESH -> offset = 0
                 LoadType.PREPEND -> return MediatorResult.Success(
                     endOfPaginationReached = true
                 )
                 LoadType.APPEND -> {
                     val lastItem = state.lastItemOrNull()
                     if(lastItem == null) {
-                        1
+                        offset = 0
                     } else {
-                        (lastItem.id / state.config.pageSize) + 1
+                        offset += state.config.pageSize
+//                        (lastItem.id / state.config.pageSize) + 1
                     }
                 }
             }
 
             val videoList = getVideoList(
-                pageOffset = loadKey,
+                pageOffset = offset,
                 pageCount = state.config.pageSize
             )
+
+
+
             cyDb.withTransaction {
                 if(loadType == LoadType.REFRESH) {
                     cyDb.videoListDao().clearAll()
