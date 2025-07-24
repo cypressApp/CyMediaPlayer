@@ -14,66 +14,17 @@ import com.cypress.cymediaplayer.common.Resources
 import com.cypress.cymediaplayer.database.CyDatabase
 import com.cypress.cymediaplayer.database.VideoEntity
 import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.repositories.VideoListRepository
+import org.koin.compose.getKoin
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
 class LocalVideoMediator(
-    val context: Context,
-    private val cyDb: CyDatabase
+    private val cyDb: CyDatabase,
+    val videoListRepository: VideoListRepository
 ): RemoteMediator<Int, VideoEntity>()  {
 
     var offset = 0L
-
-    fun getVideoList(pageOffset: Long , pageCount : Int) : List<VideoItem> {
-
-        val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(
-            MediaStore.Video.Media._ID,
-            MediaStore.Video.Media.TITLE
-        )
-
-        val tempList: MutableList<VideoItem> = mutableListOf()
-//        val retriever = MediaMetadataRetriever()
-
-        context.contentResolver.query(
-            collection,
-            projection,
-            null,
-            null,
-            "${MediaStore.Video.Media.DATE_ADDED} DESC"
-        )?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
-            val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE)
-
-            var index = 0
-            while (cursor.moveToNext()) {
-                if (index < pageOffset) {
-                    index++
-                    continue
-                }
-                if (tempList.size >= pageCount) break
-
-                val id = cursor.getLong(idColumn)
-                val title = cursor.getString(titleColumn)
-                val uri = ContentUris.withAppendedId(collection, id)
-
-//                val tempItem: VideoItem = try {
-//                    retriever.setDataSource(context, uri)
-//                    val frameBitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-//                    VideoItem(id, title, uri.toString(), frameBitmap)
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    VideoItem(id, title, uri.toString(), null)
-//                }
-                val tempItem = VideoItem(id, title, uri.toString(), null)
-                tempList.add(tempItem)
-                index++
-            }
-        }
-
-//        retriever.release()
-        return tempList
-    }
 
     override suspend fun load(
         loadType: LoadType,
@@ -93,17 +44,14 @@ class LocalVideoMediator(
                         offset = 0
                     } else {
                         offset += state.config.pageSize
-//                        (lastItem.id / state.config.pageSize) + 1
                     }
                 }
             }
 
-            val videoList = getVideoList(
+            val videoList = videoListRepository.getVideoList(
                 pageOffset = offset,
                 pageCount = state.config.pageSize
             )
-
-
 
             cyDb.withTransaction {
                 if(loadType == LoadType.REFRESH) {
@@ -121,6 +69,5 @@ class LocalVideoMediator(
         }
 
     }
-
 
 }

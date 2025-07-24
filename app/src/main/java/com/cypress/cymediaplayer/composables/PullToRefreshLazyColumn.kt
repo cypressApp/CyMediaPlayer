@@ -8,14 +8,17 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.paging.compose.LazyPagingItems
+import com.cypress.cymediaplayer.repositories.VideoItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> PullToRefreshLazyColumn(
-    items: List<T>,
+fun <T : Any> PullToRefreshLazyColumn(
+    items: LazyPagingItems<T>,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
-    onItem: @Composable ()-> Unit) {
+    onItem: @Composable (() -> Unit)
+) {
 
     val pullToRefreshState = rememberPullToRefreshState()
 

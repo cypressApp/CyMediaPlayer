@@ -92,6 +92,7 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.koin.androidx.compose.v353)
 
 }
 //room {

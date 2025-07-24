@@ -27,6 +27,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +47,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
+import com.cypress.cymediaplayer.composables.VideoListScreen
+import com.cypress.cymediaplayer.composables.VideoPlayerScreen
 import com.cypress.cymediaplayer.database.VideoEntity
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.ui.theme.CyMediaPlayerTheme
@@ -53,80 +59,97 @@ import com.google.accompanist.permissions.rememberPermissionState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
+sealed class Screen {
+    object VideoList : Screen()
+    data class VideoPlayer(val videoItem: VideoItem) : Screen()
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CheckVideoPermission()
-            CyMediaPlayerTheme {
-                val videoListViewModel : VideoListViewModel = koinViewModel()
-                val videos : LazyPagingItems<VideoItem> = videoListViewModel.videoPagingFlow.collectAsLazyPagingItems()
+            var currentScreen by remember { mutableStateOf<Screen>(Screen.VideoList) }
 
-                val context = LocalContext.current
-                val imageLoader = ImageLoader.Builder(context)
-                    .components {
-                        add(VideoFrameDecoder.Factory())
-                    }
-                    .build()
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val context = LocalContext.current
-                    LaunchedEffect(key1 = videos.loadState) {
-                        if(videos.loadState.refresh is LoadState.Error) {
-                            Toast.makeText(
-                                context,
-                                "Error: " + (videos.loadState.refresh as LoadState.Error).error.message,
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-
-                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                        if (videos.loadState.refresh is LoadState.Loading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-
-                                items(videos.itemCount) { index ->
-                                    val item = videos[index]
-                                    if (item != null) {
-                                        Row(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .clickable{
-//                                            onNavigation(videoItem)
-                                        } ,
-                                        verticalAlignment = Alignment.CenterVertically) {
-                                        AsyncImage(
-                                            model = item.uri.toUri(),
-                                            imageLoader  =imageLoader,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .clip(RoundedCornerShape(8.dp)),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                        Spacer(modifier = Modifier.size(4.dp))
-                                        Text(
-                                            text = item.title,
-                                            modifier = Modifier.weight(1f),
-                                            fontSize = 12.sp
-                                        )
-                                    }
-                                    }
-                                }
-                            }
-                        }
-                    }
+            when (val screen = currentScreen) {
+                is Screen.VideoList -> VideoListScreen(onNavigation = { videoItem ->
+                    currentScreen = Screen.VideoPlayer(videoItem)
+                })
+                is Screen.VideoPlayer -> {
+                    VideoPlayerScreen(videoItem = screen.videoItem , {
+                        currentScreen = Screen.VideoList
+                    })
                 }
             }
+            CheckVideoPermission()
+//            CyMediaPlayerTheme {
+//                val videoListViewModel : VideoListViewModel = koinViewModel()
+//                val videos : LazyPagingItems<VideoItem> = videoListViewModel.videoPagingFlow.collectAsLazyPagingItems()
+//
+//                val context = LocalContext.current
+//                val imageLoader = ImageLoader.Builder(context)
+//                    .components {
+//                        add(VideoFrameDecoder.Factory())
+//                    }
+//                    .build()
+//
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    val context = LocalContext.current
+//                    LaunchedEffect(key1 = videos.loadState) {
+//                        if(videos.loadState.refresh is LoadState.Error) {
+//                            Toast.makeText(
+//                                context,
+//                                "Error: " + (videos.loadState.refresh as LoadState.Error).error.message,
+//                                Toast.LENGTH_LONG
+//                            ).show()
+//                        }
+//                    }
+//
+//                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+//                        if (videos.loadState.refresh is LoadState.Loading) {
+//                            CircularProgressIndicator(
+//                                modifier = Modifier.align(Alignment.Center)
+//                            )
+//                        } else {
+//                            LazyColumn(
+//                                modifier = Modifier.fillMaxSize(),
+//                                verticalArrangement = Arrangement.spacedBy(16.dp),
+//                                horizontalAlignment = Alignment.CenterHorizontally
+//                            ) {
+//
+//                                items(videos.itemCount) { index ->
+//                                    val item = videos[index]
+//                                    if (item != null) {
+//                                        Row(modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .padding(8.dp)
+//                                        .clickable{
+////                                            onNavigation(videoItem)
+//                                        } ,
+//                                        verticalAlignment = Alignment.CenterVertically) {
+//                                        AsyncImage(
+//                                            model = item.uri.toUri(),
+//                                            imageLoader  =imageLoader,
+//                                            contentDescription = null,
+//                                            modifier = Modifier
+//                                                .size(64.dp)
+//                                                .clip(RoundedCornerShape(8.dp)),
+//                                            contentScale = ContentScale.Crop
+//                                        )
+//                                        Spacer(modifier = Modifier.size(4.dp))
+//                                        Text(
+//                                            text = item.title,
+//                                            modifier = Modifier.weight(1f),
+//                                            fontSize = 12.sp
+//                                        )
+//                                    }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }
