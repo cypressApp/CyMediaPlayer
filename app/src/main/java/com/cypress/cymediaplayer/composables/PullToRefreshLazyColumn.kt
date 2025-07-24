@@ -14,7 +14,7 @@ import com.cypress.cymediaplayer.repositories.VideoItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T : Any> PullToRefreshLazyColumn(
-    items: LazyPagingItems<T>,
+    items: List<T>,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onItem: @Composable (() -> Unit)
@@ -37,11 +37,5 @@ fun <T : Any> PullToRefreshLazyColumn(
         },
     ) {
         onItem()
-//        LazyColumn(Modifier.fillMaxWidth()) {
-//            items(items) {
-//                ListItem({ Text(text = it.toString()) })
-//            }
-//        }
-
     }
 }

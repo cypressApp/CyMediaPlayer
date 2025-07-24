@@ -4,7 +4,8 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.provider.MediaStore
-import com.cypress.cymediaplayer.database.VideoEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class VideoItem(
     actual val id: Long,
@@ -12,24 +13,14 @@ class VideoItem(
     actual val uri: String,
     val thumbnail: Bitmap?
 )
-{
-    fun toVideoEntity() : VideoEntity {
-
-        return VideoEntity(
-            title = title,
-            uri = uri
-        )
-
-    }
-}
 
 interface VideoListRepository{
-    fun getVideoList(pageOffset: Long , pageCount : Int) : List<VideoItem>
+    fun getVideoList(pageOffset: Long , pageCount : Int) : Flow<List<VideoItem>>
 }
 
 class VideoListRepositoryImp(val context: Context) : VideoListRepository{
 
-    override fun getVideoList(pageOffset: Long , pageCount : Int) : List<VideoItem> {
+    override fun getVideoList(pageOffset: Long , pageCount : Int) : Flow<List<VideoItem>> = flow {
 
         val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(
@@ -67,7 +58,7 @@ class VideoListRepositoryImp(val context: Context) : VideoListRepository{
             }
         }
 
-        return tempList
+        emit(tempList)
     }
 
 }
