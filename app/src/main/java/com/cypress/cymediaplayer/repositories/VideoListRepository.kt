@@ -4,6 +4,8 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.provider.MediaStore
+import androidx.core.uri.Uri
+import com.cypress.cymediaplayer.common.Resources
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -16,6 +18,8 @@ class VideoItem(
 
 interface VideoListRepository{
     fun getVideoList(pageOffset: Long , pageCount : Int) : Flow<List<VideoItem>>
+    fun deleteItem(uri: Uri) : Flow<Resources<String>>
+    fun isTv() : Boolean
 }
 
 class VideoListRepositoryImp(val context: Context) : VideoListRepository{
@@ -59,6 +63,26 @@ class VideoListRepositoryImp(val context: Context) : VideoListRepository{
         }
 
         emit(tempList)
+    }
+
+    override fun deleteItem(uri: Uri): Flow<Resources<String>> = flow {
+
+        emit(Resources.Deleting())
+        try {
+            val rowsDeleted = context.contentResolver.delete(uri, null, null)
+            if(rowsDeleted > 0){
+                emit(Resources.Success(""))
+            }else{
+                emit(Resources.Error(null , "Unknown error"))
+            }
+        } catch (e: SecurityException) {
+            emit(Resources.Error(null , e.message.toString()))
+        }
+
+    }
+
+    override fun isTv(): Boolean {
+        return context.packageManager.hasSystemFeature("android.software.leanback")
     }
 
 }

@@ -1,4 +1,4 @@
-package com.cypress.cymediaplayer.composables
+package com.cypress.cymediaplayer.composables.videoComposables
 
 import android.view.ViewGroup
 import android.widget.FrameLayout

@@ -1,13 +1,18 @@
 package com.cypress.cymediaplayer.viewModels
 
-import android.util.Log
+import android.net.Uri
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cypress.cymediaplayer.common.Resources
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.repositories.VideoListRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class VideoListViewModel(
@@ -16,6 +21,9 @@ class VideoListViewModel(
 
     private val _videoList = MutableStateFlow<List<VideoItem>>(emptyList())
     val videoList: StateFlow<List<VideoItem>> = _videoList
+
+    private val _listManager = mutableStateOf(ListManagerState())
+    val listManager : State<ListManagerState> = _listManager
 
     fun loadVideos(pageOffset: Long, pageCount: Int) {
         viewModelScope.launch {
@@ -32,6 +40,29 @@ class VideoListViewModel(
 
     fun clearList(){
         _videoList.value = emptyList()
+    }
+
+    fun deleteItem(uri : Uri){
+        videoListRepository.deleteItem(uri).onEach { result ->
+            when(result){
+                is Resources.Deleting ->{
+                    _listManager.value = ListManagerState(isDeleting = true)
+                }
+                is Resources.Error -> {
+                    _listManager.value = ListManagerState(error = result.message.toString())
+                }
+                is Resources.Loading -> {
+
+                }
+                is Resources.Success -> {
+                    _listManager.value = ListManagerState(isSuccess = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun isTv() : Boolean{
+        return videoListRepository.isTv()
     }
 
 }
