@@ -51,9 +51,7 @@ fun SignInComposable(username: String , password: String, onCreateAccount: () ->
     var password by remember { mutableStateOf("") }
 
     if(signInState.isSuccess){
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
-        activity?.finish()
+        onLogin()
     }
 
     Box(

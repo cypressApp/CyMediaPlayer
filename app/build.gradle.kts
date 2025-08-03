@@ -103,6 +103,17 @@ dependencies {
     implementation(libs.androidx.tv.foundation)
     implementation(libs.androidx.tv.material)
 
+    implementation(libs.zxing.android.embedded)
+
+    // Activity Compose
+    implementation("androidx.activity:activity-compose:1.4.0")
+// CameraX
+    implementation("androidx.camera:camera-camera2:1.0.2")
+    implementation("androidx.camera:camera-lifecycle:1.0.2")
+    implementation("androidx.camera:camera-view:1.0.0-alpha31")
+// Zxing
+    implementation("com.google.zxing:core:3.3.3")
+
     testImplementation(kotlin("test"))
 
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")

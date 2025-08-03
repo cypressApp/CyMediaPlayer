@@ -19,8 +19,8 @@ class VideoListViewModel(
     val videoListRepository: VideoListRepository
 ) : ViewModel(){
 
-    private val _videoList = MutableStateFlow<List<VideoItem>>(emptyList())
-    val videoList: StateFlow<List<VideoItem>> = _videoList
+    private val _videoList = mutableStateOf<List<VideoItem>>(emptyList())
+    val videoList: State<List<VideoItem>> = _videoList
 
     private val _listManager = mutableStateOf(ListManagerState())
     val listManager : State<ListManagerState> = _listManager

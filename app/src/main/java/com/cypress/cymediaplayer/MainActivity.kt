@@ -13,70 +13,66 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.cypress.cymediaplayer.common.MainScreenResources
+import com.cypress.cymediaplayer.composables.remoteControlComposables.QrCodeComposable
+import com.cypress.cymediaplayer.composables.remoteControlComposables.QrCodeScannerComposable
+import com.cypress.cymediaplayer.composables.remoteControlComposables.RemoteControlComposable
 import com.cypress.cymediaplayer.composables.videoComposables.VideoListComposable
 import com.cypress.cymediaplayer.composables.videoComposables.VideoPlayerScreen
+import com.cypress.cymediaplayer.repositories.TcpClientRepository
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 
-sealed class Screen {
-    object VideoList : Screen()
-    data class VideoPlayer(val videoItem: VideoItem) : Screen()
-}
-
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var currentScreen by remember { mutableStateOf<Screen>(Screen.VideoList) }
+            var currentScreen by remember { mutableStateOf<MainScreenResources>(MainScreenResources.VideoList) }
 
             when (val screen = currentScreen) {
-                is Screen.VideoList -> VideoListComposable(onNavigation = { videoItem ->
-                    currentScreen = Screen.VideoPlayer(videoItem)
+                is MainScreenResources.VideoList -> VideoListComposable(onNavigation = { videoItem ->
+                    currentScreen = MainScreenResources.VideoPlayer(videoItem)
+                }, onNavRemoteControl = {
+                    currentScreen = MainScreenResources.RemoteControl
                 })
-                is Screen.VideoPlayer -> {
+                is MainScreenResources.VideoPlayer -> {
                     VideoPlayerScreen(videoItem = screen.videoItem , {
-                        currentScreen = Screen.VideoList
+                        currentScreen = MainScreenResources.VideoList
                     })
                 }
+                is MainScreenResources.RemoteControl -> {
+                    RemoteControlComposable(onNavigation = {
+                        currentScreen = MainScreenResources.QrCode
+                    } , onBackPressed = {
+                        currentScreen = MainScreenResources.VideoList
+                    })
+                }
+                is MainScreenResources.QrCode -> {
+                    QrCodeScannerComposable(onNavigation = {
+                        currentScreen = MainScreenResources.RemoteControl
+                    } , onBackPressed = {
+                        currentScreen = MainScreenResources.RemoteControl
+                    })
+//                    QrCodeComposable(onNavigation = {
+//                        currentScreen = MainScreenResources.VideoList
+//                    } , onBackPressed = {
+//                        currentScreen = MainScreenResources.VideoList
+//                    })
+                }
             }
-            CheckVideoPermission()
 
         }
-    }
-}
-
-@OptIn(ExperimentalPermissionsApi::class, KoinExperimentalAPI::class)
-@Composable
-fun CheckVideoPermission() {
-
-    val videoListViewModel : VideoListViewModel = koinViewModel()
-
-    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Manifest.permission.READ_MEDIA_VIDEO
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    }
-
-    val permissionState = rememberPermissionState(permission = permission)
-
-    LaunchedEffect(Unit) {
-        if (!permissionState.status.isGranted) {
-            permissionState.launchPermissionRequest()
-        } else {
-//            videoListViewModel.getAllList()
-        }
-    }
-
-    if (permissionState.status.isGranted) {
-//        videoListViewModel.getAllList()
-    } else {
-        Text("Permission is required to view videos")
     }
 }

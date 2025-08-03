@@ -25,7 +25,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,11 +49,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import com.cypress.cymediaplayer.R
 import com.cypress.cymediaplayer.composables.PullToRefreshLazyColumn
 import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
@@ -62,12 +70,12 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun VideoListComposable(onNavigation : (VideoItem) -> Unit) {
+fun VideoListComposable(onNavigation : (VideoItem) -> Unit , onNavRemoteControl: () -> Unit) {
 
     var isRefreshing by remember { mutableStateOf(false) }
     val videoListViewModel : VideoListViewModel = koinViewModel()
     val imageLoader : ImageLoader = getKoin().get()
-    val videoList by videoListViewModel.videoList.collectAsState()
+    val videoList by videoListViewModel.videoList//.collectAsState()
 
 //    val launcher = rememberLauncherForActivityResult(
 //        contract = ActivityResultContracts.GetContent(),
@@ -191,113 +199,95 @@ fun VideoListComposable(onNavigation : (VideoItem) -> Unit) {
                         }
                     }
                 }
+
+                FloatingActionButton(
+                    onClick = {
+                        onNavRemoteControl()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp) // margin from edges
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = "remote control")
+                }
             }
         }
 
     }else{
-        Column(modifier = Modifier
-            .safeContentPadding()
-            .fillMaxSize(),) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFEFEF))
+        ){
 
-            Text("Items: ${videoList.size}")
+            Box(modifier = Modifier.safeContentPadding()){
+                Column(modifier = Modifier
+                    .safeContentPadding()
+                    .fillMaxSize()) {
 
-            PullToRefreshLazyColumn(videoList, isRefreshing, {
-                isRefreshing = true
-            }, {
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(videoList.size) { index ->
-                        val videoItem = videoList[index]
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable {
-                                    onNavigation(videoItem)
-                                },
-                            verticalAlignment = Alignment.CenterVertically) {
-                            AsyncImage(
-                                model = videoItem.uri.toUri(),
-                                imageLoader = imageLoader,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = videoItem.title,
-                                modifier = Modifier.weight(1f),
-                                fontSize = 12.sp
-                            )
+                    CheckVideoPermission()
+
+                    Text(modifier = Modifier.padding(start = 8.dp),
+                        text = "Items: ${videoList.size}")
+                    PullToRefreshLazyColumn(videoList, isRefreshing, {
+                        isRefreshing = true
+                    }, {
+                        LazyColumn(
+                            state = lazyListState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(videoList.size) { index ->
+                                val videoItem = videoList[index]
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                        .clickable {
+                                            onNavigation(videoItem)
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    AsyncImage(
+                                        model = videoItem.uri.toUri(),
+                                        imageLoader = imageLoader,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Spacer(modifier = Modifier.size(4.dp))
+                                    Text(
+                                        text = videoItem.title,
+                                        modifier = Modifier.weight(1f),
+                                        fontSize = 12.sp
+                                    )
+                                }
+
+
+                            }
                         }
 
+                    })
 
-                    }
                 }
-
-            })
-
+                FloatingActionButton(
+                    onClick = {
+                        onNavRemoteControl()
+                    },
+                    modifier = Modifier
+                        .padding(16.dp) // margin from edges
+                        .align(AbsoluteAlignment.BottomRight),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(painter = painterResource(id = R.drawable.outline_remote_gen_24),
+                        contentDescription = "remote control" ,
+                        tint = Color.White)
+                }
+            }
         }
+
     }
 
 
-
-//    Column(modifier = Modifier
-//        .safeContentPadding()
-//        .fillMaxSize(),
-//        horizontalAlignment = Alignment.CenterHorizontally) {
-//
-////        Button(onClick = {
-////            launcher.launch("video/*")
-////        }) {
-////            Text("Open Video")
-////        }
-//
-//
-//
-//    }
-
-
-//    val context = LocalContext.current
-//    LaunchedEffect(key1 = videos.loadState) {
-//        if(videos.loadState.refresh is LoadState.Error) {
-//            Toast.makeText(
-//                context,
-//                "Error: " + (videos.loadState.refresh as LoadState.Error).error.message,
-//                Toast.LENGTH_LONG
-//            ).show()
-//        }
-//    }
-//
-//    Box(modifier = Modifier.fillMaxSize()) {
-//        if(videos.loadState.refresh is LoadState.Loading) {
-//            CircularProgressIndicator(
-//                modifier = Modifier.align(Alignment.Center)
-//            )
-//        } else {
-//            LazyColumn(
-//                modifier = Modifier.fillMaxSize(),
-//                verticalArrangement = Arrangement.spacedBy(16.dp),
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-////                items(videos){
-////
-////                }
-////                item {
-////                    if(videos.loadState.append is LoadState.Loading) {
-////                        CircularProgressIndicator()
-////                    }
-////                }
-//            }
-//        }
-//    }
-
-
-    CheckVideoPermission()
 
 }
 
@@ -326,6 +316,7 @@ fun CheckVideoPermission() {
     if (permissionState.status.isGranted) {
 //        videoListViewModel.getAllList()
     } else {
-        Text("Permission is required to view videos")
+        Text(modifier = Modifier.padding(start = 8.dp),
+            text = "Permission is required to view videos")
     }
 }

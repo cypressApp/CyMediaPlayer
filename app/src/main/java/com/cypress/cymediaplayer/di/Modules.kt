@@ -6,12 +6,15 @@ import androidx.room.Room
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
 import com.cypress.cymediaplayer.database.CyDatabase
+import com.cypress.cymediaplayer.repositories.RemoteControlRepository
+import com.cypress.cymediaplayer.repositories.RemoteControlRepositoryImp
 import com.cypress.cymediaplayer.repositories.VideoListRepository
 import com.cypress.cymediaplayer.repositories.VideoListRepositoryImp
 import com.cypress.cymediaplayer.repositories.VideoPlayerRepository
 import com.cypress.cymediaplayer.repositories.VideoPlayerRepositoryImp
 import com.cypress.cymediaplayer.repositories.amplify.AuthRepository
 import com.cypress.cymediaplayer.repositories.amplify.AuthRepositoryImp
+import com.cypress.cymediaplayer.viewModels.RemoteControlViewModel
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
 import com.cypress.cymediaplayer.viewModels.VideoViewModel
 import com.cypress.cymediaplayer.viewModels.amplify.AuthViewModel
@@ -51,5 +54,9 @@ val platformModule = module{
     }
 
     viewModelOf(::AuthViewModel)
+
+    viewModelOf(::RemoteControlViewModel)
+    singleOf(::RemoteControlRepositoryImp).bind<RemoteControlRepository>()
+
 
 }

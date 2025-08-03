@@ -1,5 +1,6 @@
 package com.cypress.cymediaplayer
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,7 +38,9 @@ class AuthActivity : ComponentActivity() {
 
                     },
                     onLogin = {
-                        currentScreen = AuthScreens.SignInScreen("" , "")
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
                     })
                 }
                 is AuthScreens.SignUpScreen -> {
