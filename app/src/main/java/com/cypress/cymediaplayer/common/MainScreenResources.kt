@@ -1,6 +1,6 @@
 package com.cypress.cymediaplayer.common
 
-import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.VideoItem
 
 sealed class MainScreenResources {
 

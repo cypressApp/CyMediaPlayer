@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
@@ -34,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +55,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.cypress.cymediaplayer.R
 import com.cypress.cymediaplayer.composables.PullToRefreshLazyColumn
-import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.VideoItem
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted

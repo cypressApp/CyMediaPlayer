@@ -11,7 +11,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.media3.ui.PlayerView
 import com.cypress.cymediaplayer.viewModels.VideoViewModel
-import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.VideoItem
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 

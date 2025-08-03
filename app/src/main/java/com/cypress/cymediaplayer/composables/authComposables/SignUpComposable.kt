@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.cypress.cymediaplayer.repositories.VideoItem
 import com.cypress.cymediaplayer.viewModels.amplify.AuthViewModel
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.sin

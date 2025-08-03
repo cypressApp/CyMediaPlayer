@@ -1,4 +1,4 @@
-package com.cypress.cymediaplayer.repositories.amplify
+package com.cypress.cymediaplayer.data.repositories.amplify
 
 import com.cypress.cymediaplayer.common.amplify.AuthResource
 import kotlinx.coroutines.delay

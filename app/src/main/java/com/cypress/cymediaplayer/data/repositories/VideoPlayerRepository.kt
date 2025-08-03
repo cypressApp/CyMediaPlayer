@@ -1,4 +1,4 @@
-package com.cypress.cymediaplayer.repositories
+package com.cypress.cymediaplayer.data.repositories
 
 import android.net.Uri
 import androidx.media3.common.MediaItem

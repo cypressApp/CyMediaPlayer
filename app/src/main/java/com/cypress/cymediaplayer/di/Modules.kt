@@ -6,15 +6,20 @@ import androidx.room.Room
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
 import com.cypress.cymediaplayer.database.CyDatabase
-import com.cypress.cymediaplayer.repositories.RemoteControlRepository
-import com.cypress.cymediaplayer.repositories.RemoteControlRepositoryImp
-import com.cypress.cymediaplayer.repositories.VideoListRepository
-import com.cypress.cymediaplayer.repositories.VideoListRepositoryImp
-import com.cypress.cymediaplayer.repositories.VideoPlayerRepository
-import com.cypress.cymediaplayer.repositories.VideoPlayerRepositoryImp
-import com.cypress.cymediaplayer.repositories.amplify.AuthRepository
-import com.cypress.cymediaplayer.repositories.amplify.AuthRepositoryImp
+import com.cypress.cymediaplayer.data.repositories.RemoteControlRepository
+import com.cypress.cymediaplayer.data.repositories.RemoteControlRepositoryImp
+import com.cypress.cymediaplayer.data.repositories.RemoteReceiverRepository
+import com.cypress.cymediaplayer.data.repositories.RemoteReceiverRepositoryImp
+import com.cypress.cymediaplayer.data.local.TcpClientApi
+import com.cypress.cymediaplayer.data.local.TcpServerApi
+import com.cypress.cymediaplayer.data.repositories.VideoListRepository
+import com.cypress.cymediaplayer.data.repositories.VideoListRepositoryImp
+import com.cypress.cymediaplayer.data.repositories.VideoPlayerRepository
+import com.cypress.cymediaplayer.data.repositories.VideoPlayerRepositoryImp
+import com.cypress.cymediaplayer.data.repositories.amplify.AuthRepository
+import com.cypress.cymediaplayer.data.repositories.amplify.AuthRepositoryImp
 import com.cypress.cymediaplayer.viewModels.RemoteControlViewModel
+import com.cypress.cymediaplayer.viewModels.RemoteReceiverViewModel
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
 import com.cypress.cymediaplayer.viewModels.VideoViewModel
 import com.cypress.cymediaplayer.viewModels.amplify.AuthViewModel
@@ -58,5 +63,13 @@ val platformModule = module{
     viewModelOf(::RemoteControlViewModel)
     singleOf(::RemoteControlRepositoryImp).bind<RemoteControlRepository>()
 
+    viewModelOf(::RemoteReceiverViewModel)
+    singleOf(::RemoteReceiverRepositoryImp).bind<RemoteReceiverRepository>()
+
+    single<TcpServerApi>{
+        TcpServerApi()
+    }
+
+    factory<TcpClientApi> { TcpClientApi() }
 
 }

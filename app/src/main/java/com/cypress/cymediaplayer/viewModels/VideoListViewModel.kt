@@ -6,10 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cypress.cymediaplayer.common.Resources
-import com.cypress.cymediaplayer.repositories.VideoItem
-import com.cypress.cymediaplayer.repositories.VideoListRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.cypress.cymediaplayer.data.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.VideoListRepository
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

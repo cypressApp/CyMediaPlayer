@@ -40,8 +40,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.cypress.cymediaplayer.common.MainScreenResources
-import com.cypress.cymediaplayer.repositories.QrCodeAnalyzerRepository
-import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.QrCodeAnalyzerRepository
+import com.cypress.cymediaplayer.data.repositories.VideoItem
 import com.cypress.cymediaplayer.viewModels.RemoteControlViewModel
 import org.koin.androidx.compose.koinViewModel
 

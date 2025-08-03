@@ -2,7 +2,7 @@ package com.cypress.cymediaplayer.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.cypress.cymediaplayer.repositories.VideoItem
+import com.cypress.cymediaplayer.data.repositories.VideoItem
 
 @Entity
 data class VideoEntity(

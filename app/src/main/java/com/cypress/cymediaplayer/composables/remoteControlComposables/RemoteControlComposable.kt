@@ -51,10 +51,6 @@ fun RemoteControlComposable(onNavigation : () -> Unit , onBackPressed: () -> Uni
 
     var status by remember { mutableStateOf("TV Off") }
 
-    LaunchedEffect(status) {
-        remoteControlViewModel.send(status)
-    }
-
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -77,7 +73,14 @@ fun RemoteControlComposable(onNavigation : () -> Unit , onBackPressed: () -> Uni
 
                 // Power Button
                 Button(
-                    onClick = { status = if (status == "TV On") "TV Off" else "TV On" },
+                    onClick = {if (status == "TV On"){
+                                    status = "TV Off"
+                                    remoteControlViewModel.send(status)
+                                } else {
+                                    status = "TV On"
+                                    remoteControlViewModel.send(status)
+                                }
+                              },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE91E63))
                 ) {
                     Text("Power", color = Color.White, fontWeight = FontWeight.Bold)
@@ -90,19 +93,31 @@ fun RemoteControlComposable(onNavigation : () -> Unit , onBackPressed: () -> Uni
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Volume")
-                        IconButton(onClick = { status = "Volume Up" }) {
+                        IconButton(onClick = {
+                            status = "Volume Up"
+                            remoteControlViewModel.send(status)
+                        }) {
                             Text("＋", fontSize = 24.sp)
                         }
-                        IconButton(onClick = { status = "Volume Down" }) {
+                        IconButton(onClick = {
+                            status = "Volume Down"
+                            remoteControlViewModel.send(status)
+                        }) {
                             Text("－", fontSize = 24.sp)
                         }
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Channel")
-                        IconButton(onClick = { status = "Channel Up" }) {
+                        IconButton(onClick = {
+                            status = "Channel Up"
+                            remoteControlViewModel.send(status)
+                        }) {
                             Text("▲", fontSize = 24.sp)
                         }
-                        IconButton(onClick = { status = "Channel Down" }) {
+                        IconButton(onClick = {
+                            status = "Channel Down"
+                            remoteControlViewModel.send(status)
+                        }) {
                             Text("▼", fontSize = 24.sp)
                         }
                     }
@@ -117,19 +132,33 @@ fun RemoteControlComposable(onNavigation : () -> Unit , onBackPressed: () -> Uni
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            IconButton(onClick = { status = "Up" }) { Text("↑") }
+                            IconButton(onClick = {
+                                status = "Up"
+                                remoteControlViewModel.send(status)
+                            }) { Text("↑") }
                             Row {
-                                IconButton(onClick = { status = "Left" }) { Text("←") }
+                                IconButton(onClick = {
+                                    status = "Left"
+                                    remoteControlViewModel.send(status)
+                                }) { Text("←") }
                                 Button(
-                                    onClick = { status = "OK" },
+                                    onClick = {
+                                        status = "OK"
+                                        remoteControlViewModel.send(status) },
                                     shape = CircleShape,
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
                                 ) {
                                     Text("OK", color = Color.White)
                                 }
-                                IconButton(onClick = { status = "Right" }) { Text("→") }
+                                IconButton(onClick = {
+                                    status = "Right"
+                                    remoteControlViewModel.send(status)
+                                }) { Text("→") }
                             }
-                            IconButton(onClick = { status = "Down" }) { Text("↓") }
+                            IconButton(onClick = {
+                                status = "Down"
+                                remoteControlViewModel.send(status)
+                            }) { Text("↓") }
                         }
                     }
                 }
@@ -139,14 +168,18 @@ fun RemoteControlComposable(onNavigation : () -> Unit , onBackPressed: () -> Uni
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
                 ) {
-                    Button(onClick = { status = "Home" },
+                    Button(onClick = {
+                        status = "Home"
+                        remoteControlViewModel.send(status)},
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.DarkGray,
                             contentColor = Color.White
                         )) {
                         Text("Home")
                     }
-                    Button(onClick = { status = "Back" },
+                    Button(onClick = {
+                        status = "Back"
+                        remoteControlViewModel.send(status)},
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.DarkGray,
                             contentColor = Color.White

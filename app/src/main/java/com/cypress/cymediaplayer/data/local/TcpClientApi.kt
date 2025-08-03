@@ -1,18 +1,16 @@
-package com.cypress.cymediaplayer.repositories
+package com.cypress.cymediaplayer.data.local
 import java.io.*
 import java.net.Socket
 import java.net.InetSocketAddress
 
-class TcpClientRepository(
-    private val serverIp: String,
-    private val serverPort: Int,
-    private val timeout: Int = 5000 // optional timeout
+class TcpClientApi(
+    private val timeout: Int = 5000
 ) {
     private var socket: Socket? = null
     private var writer: BufferedWriter? = null
     private var reader: BufferedReader? = null
 
-    fun connect(): Boolean {
+    fun connect(serverIp : String , serverPort: Int): Boolean {
         return try {
             socket = Socket()
             socket?.connect(InetSocketAddress(serverIp, serverPort), timeout)

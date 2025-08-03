@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cypress.cymediaplayer.common.amplify.AuthResource
-import com.cypress.cymediaplayer.repositories.amplify.AuthRepository
+import com.cypress.cymediaplayer.data.repositories.amplify.AuthRepository
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 

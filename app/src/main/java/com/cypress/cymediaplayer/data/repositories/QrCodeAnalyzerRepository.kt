@@ -1,4 +1,4 @@
-package com.cypress.cymediaplayer.repositories
+package com.cypress.cymediaplayer.data.repositories
 
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageAnalysis
