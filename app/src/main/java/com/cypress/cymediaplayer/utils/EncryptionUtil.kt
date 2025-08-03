@@ -9,8 +9,8 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
 object EncryptionUtil{
-    private val SECRET_KEY = "your_password_here"  // use a strong key
-    var salt = "your_salt_here"           // use a unique salt per app
+    private val SECRET_KEY = "your_password_here"
+    var salt = "your_salt_here"
     private val ALGORITHM = "AES/CBC/PKCS5Padding"
 
     private fun generateKey(): SecretKey {
@@ -20,7 +20,7 @@ object EncryptionUtil{
     }
 
     fun encrypt(strToEncrypt: String): String {
-        val iv = ByteArray(16) // Initialization Vector
+        val iv = ByteArray(16)
         val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, generateKey(), ivSpec)

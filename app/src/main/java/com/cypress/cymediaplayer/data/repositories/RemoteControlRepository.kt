@@ -76,7 +76,7 @@ class RemoteControlRepositoryImp(
     }
 
     override fun sendCommandTcp(command: String) {
-        client?.sendMessage(command)
+        client.sendMessage(command)
     }
 
     override fun scanDevice() {

@@ -27,7 +27,6 @@ class RemoteControlViewModel(
     var commandCounter = mutableIntStateOf(0)
     fun connect(info: QrCodeData){
         viewModelScope.launch(Dispatchers.IO){
-            // val tempIp = info.ip//.split(",")
             repository.connect(info.ip).onEach {
 
             }.collect{ result ->
