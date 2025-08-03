@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.cypress.cymediaplayer.common.MainScreenResources
-import com.cypress.cymediaplayer.composables.remoteControlComposables.QrCodeComposable
+import com.cypress.cymediaplayer.composables.remoteControlComposables.QrCodeGeneratorComposable
 import com.cypress.cymediaplayer.composables.remoteControlComposables.QrCodeScannerComposable
 import com.cypress.cymediaplayer.composables.remoteControlComposables.RemoteControlComposable
 import com.cypress.cymediaplayer.composables.videoComposables.VideoListComposable
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     } , onBackPressed = {
                         currentScreen = MainScreenResources.RemoteControl
                     })
-//                    QrCodeComposable(onNavigation = {
+//                    QrCodeGeneratorComposable(onNavigation = {
 //                        currentScreen = MainScreenResources.VideoList
 //                    } , onBackPressed = {
 //                        currentScreen = MainScreenResources.VideoList

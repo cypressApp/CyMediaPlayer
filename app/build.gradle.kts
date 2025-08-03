@@ -105,6 +105,9 @@ dependencies {
 
     implementation(libs.zxing.android.embedded)
 
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.4.0")
 // CameraX

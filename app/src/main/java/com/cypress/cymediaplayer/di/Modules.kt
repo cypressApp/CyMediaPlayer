@@ -5,24 +5,28 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.room.Room
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
-import com.cypress.cymediaplayer.database.CyDatabase
+import com.cypress.cymediaplayer.data.local.TcpClientApi
+import com.cypress.cymediaplayer.data.local.TcpServerApi
+import com.cypress.cymediaplayer.data.repositories.NetworkUtilRepository
+import com.cypress.cymediaplayer.data.repositories.NetworkUtilRepositoryImp
 import com.cypress.cymediaplayer.data.repositories.RemoteControlRepository
 import com.cypress.cymediaplayer.data.repositories.RemoteControlRepositoryImp
 import com.cypress.cymediaplayer.data.repositories.RemoteReceiverRepository
 import com.cypress.cymediaplayer.data.repositories.RemoteReceiverRepositoryImp
-import com.cypress.cymediaplayer.data.local.TcpClientApi
-import com.cypress.cymediaplayer.data.local.TcpServerApi
 import com.cypress.cymediaplayer.data.repositories.VideoListRepository
 import com.cypress.cymediaplayer.data.repositories.VideoListRepositoryImp
 import com.cypress.cymediaplayer.data.repositories.VideoPlayerRepository
 import com.cypress.cymediaplayer.data.repositories.VideoPlayerRepositoryImp
 import com.cypress.cymediaplayer.data.repositories.amplify.AuthRepository
 import com.cypress.cymediaplayer.data.repositories.amplify.AuthRepositoryImp
+import com.cypress.cymediaplayer.database.CyDatabase
 import com.cypress.cymediaplayer.viewModels.RemoteControlViewModel
 import com.cypress.cymediaplayer.viewModels.RemoteReceiverViewModel
 import com.cypress.cymediaplayer.viewModels.VideoListViewModel
 import com.cypress.cymediaplayer.viewModels.VideoViewModel
 import com.cypress.cymediaplayer.viewModels.amplify.AuthViewModel
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -36,6 +40,9 @@ val platformModule = module{
     singleOf(::VideoListRepositoryImp).bind<VideoListRepository>()
     factoryOf(::VideoPlayerRepositoryImp).bind<VideoPlayerRepository>() // new instance every time it's injected
     factory { ExoPlayer.Builder(androidContext()).build() } // new instance every time it's injected
+
+    single{ Moshi.Builder().add(KotlinJsonAdapterFactory()).build()}
+
     singleOf(::AuthRepositoryImp).bind<AuthRepository>()
 
     viewModelOf(::VideoViewModel)
@@ -70,6 +77,10 @@ val platformModule = module{
         TcpServerApi()
     }
 
-    factory<TcpClientApi> { TcpClientApi() }
+    factory<TcpClientApi> {
+        TcpClientApi()
+    }
+
+    singleOf(::NetworkUtilRepositoryImp).bind<NetworkUtilRepository>()
 
 }

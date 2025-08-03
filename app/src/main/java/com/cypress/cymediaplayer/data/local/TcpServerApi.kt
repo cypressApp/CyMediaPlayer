@@ -2,6 +2,7 @@ package com.cypress.cymediaplayer.data.local
 
 import android.util.Log
 import com.cypress.cymediaplayer.common.TcpServerResources
+import com.cypress.cymediaplayer.utils.EncryptionUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,6 +22,8 @@ class TcpServerApi {
     private val serverScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var serverSocket: ServerSocket? = null
     private var port = 0
+
+    var lastVerificationCode = ""
 
     fun start(port: Int): Flow<TcpServerResources<String>> = channelFlow {
         this@TcpServerApi.port = port
@@ -48,13 +51,21 @@ class TcpServerApi {
     fun handleClient(client: Socket): Flow<TcpServerResources<String>> =
         flow {
             try {
+                var isClientVerified = false
                 val input = BufferedReader(InputStreamReader(client.getInputStream()))
                 val output = PrintWriter(client.getOutputStream(), true)
 
                 var message: String?
                 while (input.readLine().also { message = it } != null) {
                     Log.d("TCP", "Received: $message")
-                    emit(TcpServerResources.ReceivedData<String>(null, message!!))
+                    if(isClientVerified)
+                        emit(TcpServerResources.ReceivedData( message ,message!!))
+                    else{
+                        emit(TcpServerResources.ClientVerified())
+                        if(message == lastVerificationCode){
+                            isClientVerified = true
+                        }
+                    }
                     output.println("Echo: $message")
                 }
             } catch (e: Exception) {
@@ -62,7 +73,7 @@ class TcpServerApi {
             } finally {
                 client.close()
             }
-        }.flowOn(Dispatchers.IO) // ✅ ensures proper context
+        }.flowOn(Dispatchers.IO)
 
 
     fun stop() : Flow<TcpServerResources<String>> = flow  {

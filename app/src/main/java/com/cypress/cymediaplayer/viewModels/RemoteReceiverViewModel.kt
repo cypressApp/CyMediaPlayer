@@ -16,6 +16,17 @@ class RemoteReceiverViewModel(
     private val _remoteReceiverState = mutableStateOf(RemoteReceiverState())
     val remoteReceiverState: State<RemoteReceiverState> = _remoteReceiverState
 
+    private val _qrCodeInfoState = mutableStateOf("_")
+    val qrCodeInfoState: State<String> = _qrCodeInfoState
+
+    fun getQrCodeInfo(){
+        viewModelScope.launch(Dispatchers.IO){
+            remoteReceiverRepository.getQrCodeInfo().collect { result ->
+                _qrCodeInfoState.value = result
+            }
+        }
+    }
+
     fun start(){
         viewModelScope.launch(Dispatchers.IO){
             remoteReceiverRepository.startListening(1234).collect { result ->
@@ -38,6 +49,14 @@ class RemoteReceiverViewModel(
                             isServerStopped = true ,
                             receivedMessage = "" ,
                             isClientConnected = false)
+                    }
+
+                    is TcpServerResources.ClientVerified -> {
+                        _remoteReceiverState.value = _remoteReceiverState.value.copy(
+                            isServerStopped = false ,
+                            receivedMessage = "" ,
+                            isClientConnected = true,
+                            isClientVerified = true)
                     }
                 }
             }

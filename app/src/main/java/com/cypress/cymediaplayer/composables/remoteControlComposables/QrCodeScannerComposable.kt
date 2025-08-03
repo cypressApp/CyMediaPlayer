@@ -39,16 +39,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.cypress.cymediaplayer.app.app
 import com.cypress.cymediaplayer.common.MainScreenResources
+import com.cypress.cymediaplayer.data.local.dto.QrCodeData
 import com.cypress.cymediaplayer.data.repositories.QrCodeAnalyzerRepository
 import com.cypress.cymediaplayer.data.repositories.VideoItem
+import com.cypress.cymediaplayer.utils.EncryptionUtil
 import com.cypress.cymediaplayer.viewModels.RemoteControlViewModel
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun QrCodeScannerComposable(onNavigation : (VideoItem) -> Unit , onBackPressed: () -> Unit) {
 
-    var code by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf(QrCodeData()) }
     var serverResponse by remember { mutableStateOf("Waiting for server...") }
     val remoteControlViewModel : RemoteControlViewModel = koinViewModel()
     val remoteControlState by remember { remoteControlViewModel.remoteControlState }
@@ -63,7 +67,11 @@ fun QrCodeScannerComposable(onNavigation : (VideoItem) -> Unit , onBackPressed: 
     LaunchedEffect(Unit) {
         remoteControlViewModel.events.collect { event ->
             when (event) {
-                is MainScreenResources.VideoList -> onBackPressed()
+                is MainScreenResources.VideoList -> {
+                    remoteControlViewModel.send(EncryptionUtil.decrypt(code.verificationCode) , false)
+                    delay(1000)
+                    onBackPressed()
+                }
                 is MainScreenResources.RemoteControl -> TODO()
                 is MainScreenResources.VideoPlayer -> TODO()
                 is MainScreenResources.QrCode -> TODO()
@@ -72,8 +80,9 @@ fun QrCodeScannerComposable(onNavigation : (VideoItem) -> Unit , onBackPressed: 
     }
 
     LaunchedEffect(code) {
-        if(code.isNotEmpty())
-            remoteControlViewModel.connect(code)
+        if(code.ip.isNullOrEmpty()) return@LaunchedEffect
+
+        remoteControlViewModel.connect(code)
     }
 
     var hasCamPermission by remember {
@@ -154,7 +163,7 @@ fun QrCodeScannerComposable(onNavigation : (VideoItem) -> Unit , onBackPressed: 
                 )
             }
             Text(
-                text = code,
+                text = "${code.ip}, ${code.verificationCode}",
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
